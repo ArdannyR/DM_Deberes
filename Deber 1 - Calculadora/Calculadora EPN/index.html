@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora EPN - Estado de Materia</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="calculator">
+        <h1 class="title">Calculadora <span>EPN</span></h1>
+        
+        <div class="info-box">
+            El minimo para pasar una materia sin supletorio es de 28/40 puntos. Mientras que para pasar con el supletorio es de 24/40 puntos.
+        </div>
+        
+        <div class="main-content">
+            <div class="left-section">
+                <div class="input-group">
+                    <label>Nota de 1er Bimestre (0-20)</label>
+                    <input type="number" id="nota1" min="0" max="20" placeholder="0" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label>Nota de 2do Bimestre (0-20)</label>
+                    <input type="number" id="nota2" min="0" max="20" placeholder="0" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label>Nota de Supletorio (0-40)</label>
+                    <input type="number" id="notaSupletorio" min="0" max="40" placeholder="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="right-section">
+                <div class="result-card">
+                    <div class="label">Nota Final del Semestre</div>
+                    <div class="value" id="notaFinal">0</div>
+                </div>
+
+                <div class="result-card supletorio" id="notaMateriaCard" style="display: none;">
+                    <div class="label">Nota Final de la Materia</div>
+                    <div class="value" id="notaMateria">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-section">
+            <div class="button-row">
+                <button class="btn-calculate" id="btnCalcular">CALCULAR</button>
+            </div>
+
+            <div class="message" id="message"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
