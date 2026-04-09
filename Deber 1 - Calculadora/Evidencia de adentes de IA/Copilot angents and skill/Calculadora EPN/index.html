@@ -1,0 +1,33 @@
+# agents.md
+
+# Architecture and Logic of the Calculadora EPN
+
+The **Calculadora EPN** is a web-based application designed to help students of the Escuela Politécnica Nacional (EPN) determine their academic status based on their grades. The project is structured into three main components: HTML, CSS, and JavaScript.
+
+## 1. HTML (index.html)
+
+The HTML file serves as the main interface for the application. It includes:
+- A title section that introduces the calculator.
+- An information box that explains the grading criteria.
+- Input fields for the user to enter their grades for the first bimester, second bimester, and the supletorio (makeup exam).
+- Result display areas that show the final semester grade and the final grade for the subject.
+- A button to trigger the calculation of grades.
+- A message area to display feedback based on the user's input.
+
+## 2. CSS (styles.css)
+
+The CSS file is responsible for styling the calculator, ensuring a user-friendly and visually appealing interface. Key features include:
+- A responsive layout that centers the calculator on the screen.
+- A color scheme that uses gradients and contrasting colors for readability.
+- Styled input fields and buttons to enhance user interaction.
+- Visual feedback for messages displayed to the user, indicating success, error, or warning states.
+
+## 3. JavaScript (script.js)
+
+The JavaScript file contains the core logic of the application. It includes:
+- Functions to validate user input, ensuring grades are within acceptable ranges.
+- A calculation function that computes the final semester grade based on user inputs.
+- Logic to determine the appropriate messages to display based on the calculated grades, including conditions for passing or failing with or without the supletorio.
+- Event listeners that trigger calculations when the user interacts with the input fields or clicks the calculate button.
+
+Overall, the architecture of the Calculadora EPN is designed to provide a seamless user experience, allowing students to easily input their grades and receive immediate feedback on their academic status.
