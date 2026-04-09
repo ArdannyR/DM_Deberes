@@ -110,3 +110,63 @@ Ejemplo de código:
 ```ts
 console.log("Hola Mundo");
 ```
+---
+
+# Compilar y ejecutar archivos TypeScript
+
+## Compilar el código TypeScript
+
+Para compilar el código TypeScript y generar los archivos JavaScript en la carpeta `dist`, ejecuta:
+
+```bash
+npx tsc
+```
+
+Esto generará el archivo `.js` correspondiente dentro de la carpeta `dist`(configurada anteriormente).
+
+---
+
+## Ejecutar el archivo JavaScript compilado
+
+Una vez compilado el código, puedes ejecutarlo con Node.js y la ruta del archvio JavaScript generado:
+
+```bash
+node dist/holaMundo.js
+```
+
+---
+
+# Ejecutar TypeScript directamente (Opcional)
+
+Si prefieres ejecutar el código **sin compilar manualmente**, puedes usar herramientas como `tsx` o `ts-node`.
+
+## Instalar `tsx`
+
+```bash
+npm install tsx --save-dev
+```
+
+---
+
+## Ejecutar el archivo TypeScript directamente
+
+```bash
+npx tsx src/holaMundo.ts
+```
+
+## Instalar `ts-node`
+
+```bash
+npm install ts-node --save-dev
+```
+
+---
+
+## Ejecutar el archivo TypeScript directamente
+
+```bash
+npx ts-node src/holaMundo.ts
+```
+
+Esto permite ejecutar el archivo `.ts` **en un solo paso**, sin necesidad de generar previamente el archivo `.js`.
+Nota: `tsx` es una herramienta más moderna y rápida que `ts-node`, por lo que se recomienda su uso para proyectos nuevos. Aun asi ambas cumplen con su cometido de ejecutar TypeScript directamente.
