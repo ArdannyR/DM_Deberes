@@ -1,2 +1,34 @@
+# Dependencias
 node_modules/
+
+# Build outputs
 dist/
+build/
+
+# Expo/React Native
+.expo/
+expo-env.d.ts
+*.log
+*.ipa
+*.aab
+*.app
+android/app/build/
+ios/Pods/
+ios/build/
+eas.json
+.github/
+github/
+
+# Android Studio / VS Code / IntelliJ
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
