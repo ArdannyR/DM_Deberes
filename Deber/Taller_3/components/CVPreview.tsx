@@ -8,7 +8,7 @@ interface CVPreviewProps {
 }
 
 export const CVPreview: React.FC<CVPreviewProps> = ({ cvData }) => {
-  const { personalInfo, experiences, education } = cvData;
+  const { personalInfo, experiences, education, skills } = cvData;
 
   return (
     <ScrollView style={styles.container}>
@@ -78,9 +78,22 @@ export const CVPreview: React.FC<CVPreviewProps> = ({ cvData }) => {
           </View>
         )}
 
+        {skills.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>HABILIDADES</Text>
+            {skills.map((skill) => (
+              <View key={skill.id} style={styles.skillItem}>
+                <Text style={styles.skillName}>{skill.name}</Text>
+                <Text style={styles.skillLevel}>{skill.level}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         {!personalInfo.fullName &&
           experiences.length === 0 &&
-          education.length === 0 && (
+          education.length === 0 &&
+          skills.length === 0 && (
             <View style={styles.emptyState}>
               <Text style={styles.emptyText}>
                 No hay información para mostrar.{"\n"}
@@ -175,6 +188,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: EPNColors.textPrimary,
     lineHeight: 18,
+  },
+  skillItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: EPNColors.border,
+  },
+  skillName: {
+    fontSize: 14,
+    color: EPNColors.textPrimary,
+    flex: 1,
+  },
+  skillLevel: {
+    fontSize: 12,
+    color: EPNColors.primary,
+    fontWeight: "600",
   },
   emptyState: {
     flex: 1,

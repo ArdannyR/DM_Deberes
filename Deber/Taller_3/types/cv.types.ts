@@ -23,8 +23,17 @@ export interface Education {
     graduationYear: string;
 }
 
+export type SkillLevel = "Básico" | "Intermedio" | "Avanzado" | "Experto";
+
+export interface Skill {
+    id: string;
+    name: string;
+    level: SkillLevel;
+}
+
 export interface CVData {
     personalInfo: PersonalInfo;
     experiences: Experience[];
     education: Education[];
+    skills: Skill[];
 }
