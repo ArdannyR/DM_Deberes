@@ -26,11 +26,31 @@ export default function SkillsScreen() {
   const router = useRouter();
   const { cvData, addSkill, deleteSkill } = useCVContext();
 
+  // =============================================
+// useForm DE @TANSTACK/REACT-FORM
+// =============================================
+// useForm es el hook principal de TanStack Form que gestiona:
+// - Estado del formulario (valores actuales de cada campo)
+// - Validaciones (reglas definidas en cada Field)
+// - Manejo del envío (onSubmit)
+// - Reset del formulario después de enviar
+// =============================================
   const form = useForm<SkillFormData>({
     defaultValues: {
       name: "",
       level: "Básico",
     },
+    // =============================================
+// CALLBACK onSubmit - ENVÍO DE DATOS AL CONTEXTO
+// =============================================
+// Cuando el usuario presiona "Agregar Habilidad":
+// 1. Se validan todos los campos automáticamente
+// 2. Si todo está OK, se ejecuta este callback
+// 3. Creamos un objeto Skill con id único, nombre y nivel
+// 4. Llamamos addSkill() para guardar en el contexto global (CVContext)
+// 5. Reseteamos el formulario para limpiar los campos
+// 6. Mostramos una alerta de éxito al usuario
+// =============================================
     onSubmit: async ({ value }) => {
       const newSkill: Skill = {
         id: Date.now().toString(),
@@ -59,6 +79,19 @@ export default function SkillsScreen() {
       <View style={styles.content}>
         <Text style={styles.sectionTitle}>Agregar Nueva Habilidad</Text>
 
+        // =============================================
+// BLOQUE <Field> - CAMPO DE NOMBRE DE HABILIDAD
+// =============================================
+// Cada Field representa un campo individual del formulario:
+// - "form={form}": Vincula este campo al formulario principal
+// - "name": Identificador único del campo
+// - "validate": Función que se ejecuta al cambiar el valor para validar
+// - children: Renderiza el InputField pasandole:
+//   - field.state.value: Valor actual del campo
+//   - field.handleChange: Función para actualizar el valor
+//   - field.handleBlur: Función para marcar el campo como "tocado"
+//   - field.state.meta.errors: Array de errores de validación
+// =============================================
         <Field
           form={form}
           name="name"
