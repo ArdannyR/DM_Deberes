@@ -3,7 +3,14 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { proyectoApi } from '@entities/proyecto-tesis/api/proyectoApi';
 import type { ProyectoTesis } from '@entities/proyecto-tesis/model/types';
-import { useTheme } from '@shared/context/ThemeContext';
+
+const C = {
+  primary: '#0C2340',
+  background: '#F5F7FA',
+  card: '#FFFFFF',
+  textMuted: '#666666',
+  textSecondary: '#444444',
+} as const;
 
 export function ProyectoDetalleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -53,60 +60,60 @@ export function ProyectoDetalleScreen() {
     return <Text style={styles.error}>Proyecto no encontrado</Text>;
   }
 
-  const { colors } = useTheme();
+
 
   return (
-    <ScrollView style={[styles.contenedor, { backgroundColor: colors.background }]}>
-      <View style={[styles.seccion, { backgroundColor: colors.card }]}>
-        <Text style={[styles.titulo, { color: colors.primary }]}>{proyecto.titulo}</Text>
+    <ScrollView style={[styles.contenedor, { backgroundColor: C.background }]}>
+      <View style={[styles.seccion, { backgroundColor: C.card }]}>
+        <Text style={[styles.titulo, { color: C.primary }]}>{proyecto.titulo}</Text>
       </View>
 
-      <View style={[styles.seccion, { backgroundColor: colors.card }]}>
-        <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Autores</Text>
-        <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.autores}</Text>
+      <View style={[styles.seccion, { backgroundColor: C.card }]}>
+        <Text style={[styles.etiqueta, { color: C.textMuted }]}>Autores</Text>
+        <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.autores}</Text>
       </View>
 
-      <View style={[styles.seccion, { backgroundColor: colors.card }]}>
-        <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Tutor Docente</Text>
-        <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.tutor_docente}</Text>
+      <View style={[styles.seccion, { backgroundColor: C.card }]}>
+        <Text style={[styles.etiqueta, { color: C.textMuted }]}>Tutor Docente</Text>
+        <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.tutor_docente}</Text>
       </View>
 
-      <View style={[styles.seccion, { backgroundColor: colors.card }]}>
-        <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Descripción</Text>
-        <Text style={[styles.resumen, { color: colors.textSecondary }]}>{proyecto.descripcion}</Text>
+      <View style={[styles.seccion, { backgroundColor: C.card }]}>
+        <Text style={[styles.etiqueta, { color: C.textMuted }]}>Descripción</Text>
+        <Text style={[styles.resumen, { color: C.textSecondary }]}>{proyecto.descripcion}</Text>
       </View>
 
-      <View style={[styles.fila, { backgroundColor: colors.card }]}>
+      <View style={[styles.fila, { backgroundColor: C.card }]}>
         <View style={styles.columna}>
-          <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Fecha de Inicio</Text>
-          <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.fecha_inicio}</Text>
+          <Text style={[styles.etiqueta, { color: C.textMuted }]}>Fecha de Inicio</Text>
+          <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.fecha_inicio}</Text>
         </View>
 
         {proyecto.fecha_fin && (
           <View style={styles.columna}>
-            <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Fecha de Fin</Text>
-            <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.fecha_fin}</Text>
+            <Text style={[styles.etiqueta, { color: C.textMuted }]}>Fecha de Fin</Text>
+            <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.fecha_fin}</Text>
           </View>
         )}
       </View>
 
-      <View style={[styles.seccion, { backgroundColor: colors.card }]}>
-        <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Estado</Text>
-        <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.estado}</Text>
+      <View style={[styles.seccion, { backgroundColor: C.card }]}>
+        <Text style={[styles.etiqueta, { color: C.textMuted }]}>Estado</Text>
+        <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.estado}</Text>
       </View>
 
       {proyecto.repositorio_github && (
-        <View style={[styles.seccion, { backgroundColor: colors.card }]}>
-          <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Repositorio GitHub</Text>
-          <Text style={[styles.link, { color: colors.primary }]}>{proyecto.repositorio_github}</Text>
+        <View style={[styles.seccion, { backgroundColor: C.card }]}>
+          <Text style={[styles.etiqueta, { color: C.textMuted }]}>Repositorio GitHub</Text>
+          <Text style={[styles.link, { color: C.primary }]}>{proyecto.repositorio_github}</Text>
         </View>
       )}
 
       {proyecto.documento_url && (
-        <View style={[styles.seccion, { backgroundColor: colors.card }]}>
-          <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Documento PDF</Text>
+        <View style={[styles.seccion, { backgroundColor: C.card }]}>
+          <Text style={[styles.etiqueta, { color: C.textMuted }]}>Documento PDF</Text>
           <TouchableOpacity
-            style={[styles.botonPDF, { backgroundColor: colors.primary }]}
+            style={[styles.botonPDF, { backgroundColor: C.primary }]}
             onPress={() => {
               const googleViewerUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(proyecto.documento_url!);
               Linking.openURL(googleViewerUrl);
@@ -117,13 +124,13 @@ export function ProyectoDetalleScreen() {
         </View>
       )}
 
-      <View style={[styles.seccion, { backgroundColor: colors.card }]}>
-        <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Tecnologías</Text>
-        <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.tecnologias_utilizadas}</Text>
+      <View style={[styles.seccion, { backgroundColor: C.card }]}>
+        <Text style={[styles.etiqueta, { color: C.textMuted }]}>Tecnologías</Text>
+        <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.tecnologias_utilizadas}</Text>
       </View>
 
       <TouchableOpacity
-        style={[styles.botonEditar, { backgroundColor: colors.primary }]}
+        style={[styles.botonEditar, { backgroundColor: C.primary }]}
         onPress={() => router.push(`/proyecto/editar/${proyecto.id}`)}
       >
         <Text style={styles.botonEditarTexto}>Editar Proyecto</Text>

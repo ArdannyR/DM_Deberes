@@ -53,6 +53,7 @@ export function validateProyecto(
 }
 
 /** Sube un archivo PDF a Supabase Storage */
+
 export async function uploadDocument(
   fileUri: string,
   fileName: string,
@@ -61,10 +62,12 @@ export async function uploadDocument(
     const fileExt = fileName.split('.').pop();
     const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
+    
     const base64 = await FileSystem.readAsStringAsync(fileUri, {
       encoding: 'base64',
     });
 
+    
     const { data, error } = await supabase.storage
       .from('documentos_pdf_deber_4')
       .upload(uniqueFileName, decode(base64), {
@@ -77,6 +80,7 @@ export async function uploadDocument(
       return null;
     }
 
+    
     const { data: { publicUrl } } = supabase.storage
       .from('documentos_pdf_deber_4')
       .getPublicUrl(data.path);

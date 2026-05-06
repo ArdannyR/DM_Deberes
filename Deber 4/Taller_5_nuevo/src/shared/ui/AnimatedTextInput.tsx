@@ -15,17 +15,21 @@ interface AnimatedTextInputProps extends TextInputProps {
 }
 
 export function AnimatedTextInput({ error, ...props }: AnimatedTextInputProps) {
+  
   const isFocused = useSharedValue(0);
 
+  
   const animatedStyle = useAnimatedStyle(() => {
     const focusProgress = isFocused.value;
 
+    
     const borderColor = interpolateColor(
       focusProgress,
       [0, 1],
       [error ? '#E74C3C' : '#DDE2E8', '#007AFF']
     );
 
+    
     const borderWidth = interpolate(
       focusProgress,
       [0, 1],
@@ -38,11 +42,13 @@ export function AnimatedTextInput({ error, ...props }: AnimatedTextInputProps) {
     };
   });
 
+  
   const handleFocus = (e: any) => {
     isFocused.value = withTiming(1, { duration: 200 });
     props.onFocus?.(e);
   };
 
+  
   const handleBlur = (e: any) => {
     isFocused.value = withTiming(0, { duration: 200 });
     props.onBlur?.(e);

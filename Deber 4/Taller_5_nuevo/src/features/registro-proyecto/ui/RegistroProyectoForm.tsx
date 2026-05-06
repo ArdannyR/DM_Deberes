@@ -10,7 +10,24 @@ import type { CreateProyectoDto, EstadoProyecto }
   from '@entities/proyecto-tesis/model/types';
 import { createProyecto, uploadDocument } from '../api/createProyecto';
 import { AnimatedTextInput } from '@shared/ui/AnimatedTextInput';
-import { useTheme } from '@shared/context/ThemeContext';
+import { EmojiExplosion } from '@shared/ui/EmojiExplosion';
+import { GlitchView } from '@shared/ui/GlitchView';
+
+const EMOJIS_EXITO = ['🎉', '🚀', '✨', '💻', '👏', '🔥'];
+const EMOJIS_ERROR = ['⚠️', '❌', '😅', '📝', '🤔', '🛑'];
+
+const C = {
+  primary: '#0C2340',
+  background: '#F5F7FA',
+  card: '#FFFFFF',
+  text: '#1A1A1A',
+  textMuted: '#666666',
+  textSecondary: '#444444',
+  border: '#E0E0E0',
+  error: '#E74C3C',
+  success: '#27AE60',
+  white: '#FFFFFF',
+} as const;
 
 const ESTADOS: EstadoProyecto[] = ['En Progreso', 'Completado', 'Suspendido'];
 
@@ -32,7 +49,18 @@ interface FormValues {
 
 export function RegistroProyectoForm({ onSuccess }: Props) {
   const [cargando, setCargando] = useState(false);
-  const { colors } = useTheme();
+  const [mostrarExito, setMostrarExito] = useState(false);
+  const [mostrarError, setMostrarError] = useState(false);
+  const [errorGlitch, setErrorGlitch] = useState(false);
+
+  
+  const triggerErrorGlitch = () => {
+    setMostrarError(true);
+    setErrorGlitch(true);
+    setTimeout(() => setMostrarError(false), 1500);
+    setTimeout(() => setErrorGlitch(false), 250);
+  };
+
   // [RETO 5]: Validaciones estrictas (Regex, fechas y campos obligatorios).
   const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
@@ -60,6 +88,7 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
     return true;
   };
 
+  
   const onSubmit = async (data: FormValues) => {
     try {
       setCargando(true);
@@ -75,12 +104,18 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
       }
 
       await createProyecto({ ...data, documento_url });
-      Alert.alert('¡Éxito!', 'Proyecto de tesis registrado correctamente.', [
-        { text: 'OK', onPress: () => {
-          setDocumento(null);
-          onSuccess?.();
-        }}
-      ]);
+      
+      
+      setMostrarExito(true);
+      setTimeout(() => {
+        setMostrarExito(false);
+        Alert.alert('¡Éxito!', 'Proyecto de tesis registrado correctamente.', [
+          { text: 'OK', onPress: () => {
+            setDocumento(null);
+            onSuccess?.();
+          }}
+        ]);
+      }, 2000);
     } catch (error) {
       Alert.alert('Error', 'No se pudo guardar el proyecto. Verifica tu conexión.');
     } finally {
@@ -104,6 +139,7 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
 
   const [documento, setDocumento] = useState<{ uri: string; name: string } | null>(null);
 
+  
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -124,15 +160,15 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
 
   return (
     <ScrollView
-      style={[styles.contenedor, { backgroundColor: colors.background }]}
-      contentContainerStyle={[styles.scroll, { backgroundColor: colors.background }]}
+      style={[styles.contenedor, { backgroundColor: C.background }]}
+      contentContainerStyle={[styles.scroll, { backgroundColor: C.background }]}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={[styles.titulo, { color: colors.primary }]}>Nuevo Proyecto de Tesis</Text>
-      <Text style={[styles.subtitulo, { color: colors.textMuted }]}>ESFOT — Tecnología Superior en Desarrollo de Software</Text>
+      <Text style={[styles.titulo, { color: C.primary }]}>Nuevo Proyecto de Tesis</Text>
+      <Text style={[styles.subtitulo, { color: C.textMuted }]}>ESFOT — Tecnología Superior en Desarrollo de Software</Text>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Título del Proyecto *</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Título del Proyecto *</Text>
         <Controller
           name="titulo"
           control={control}
@@ -142,9 +178,9 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <AnimatedTextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+              style={[styles.input, { backgroundColor: C.card, borderColor: C.border, color: C.text }]}
               placeholder="Ej: Sistema de gestión de inventarios para PYMES"
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={C.textMuted}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -152,11 +188,11 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
             />
           )}
         />
-        {errors.titulo && <Text style={[styles.textoError, { color: colors.error }]}>{errors.titulo.message}</Text>}
+        {errors.titulo && <Text style={[styles.textoError, { color: C.error }]}>{errors.titulo.message}</Text>}
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Descripción</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Descripción</Text>
         <Controller
           name="descripcion"
           control={control}
@@ -166,9 +202,9 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <AnimatedTextInput
-              style={[styles.input, styles.inputMultiline, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+              style={[styles.input, styles.inputMultiline, { backgroundColor: C.card, borderColor: C.border, color: C.text }]}
               placeholder="Describe brevemente el objetivo del proyecto..."
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={C.textMuted}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -178,11 +214,11 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
             />
           )}
         />
-        {errors.descripcion && <Text style={[styles.textoError, { color: colors.error }]}>{errors.descripcion.message}</Text>}
+        {errors.descripcion && <Text style={[styles.textoError, { color: C.error }]}>{errors.descripcion.message}</Text>}
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Autores * (separa con comas)</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Autores * (separa con comas)</Text>
         <Controller
           name="autores"
           control={control}
@@ -192,9 +228,9 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <AnimatedTextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+              style={[styles.input, { backgroundColor: C.card, borderColor: C.border, color: C.text }]}
               placeholder="Ej: Ana Torres, Luis Pérez"
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={C.textMuted}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -202,11 +238,11 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
             />
           )}
         />
-        {errors.autores && <Text style={[styles.textoError, { color: colors.error }]}>{errors.autores.message}</Text>}
+        {errors.autores && <Text style={[styles.textoError, { color: C.error }]}>{errors.autores.message}</Text>}
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Tutor Docente *</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Tutor Docente *</Text>
         <Controller
           name="tutor_docente"
           control={control}
@@ -216,9 +252,9 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <AnimatedTextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+              style={[styles.input, { backgroundColor: C.card, borderColor: C.border, color: C.text }]}
               placeholder="Ej: Ing. Juan Carlos Gonzalez Msc."
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={C.textMuted}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -226,20 +262,20 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
             />
           )}
         />
-        {errors.tutor_docente && <Text style={[styles.textoError, { color: colors.error }]}>{errors.tutor_docente.message}</Text>}
+        {errors.tutor_docente && <Text style={[styles.textoError, { color: C.error }]}>{errors.tutor_docente.message}</Text>}
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Tecnologías Utilizadas * (separa con comas)</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Tecnologías Utilizadas * (separa con comas)</Text>
         <Controller
           name="tecnologias_utilizadas"
           control={control}
           rules={{ required: { value: true, message: 'Las tecnologías son obligatorias' } }}
           render={({ field: { onChange, onBlur, value } }) => (
             <AnimatedTextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+              style={[styles.input, { backgroundColor: C.card, borderColor: C.border, color: C.text }]}
               placeholder="Ej: React Native, Node.js, PostgreSQL, AWS"
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={C.textMuted}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -247,11 +283,11 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
             />
           )}
         />
-        {errors.tecnologias_utilizadas && <Text style={[styles.textoError, { color: colors.error }]}>{errors.tecnologias_utilizadas.message}</Text>}
+        {errors.tecnologias_utilizadas && <Text style={[styles.textoError, { color: C.error }]}>{errors.tecnologias_utilizadas.message}</Text>}
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Fecha de Inicio *</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Fecha de Inicio *</Text>
         <Controller
           name="fecha_inicio"
           control={control}
@@ -259,10 +295,10 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
           render={({ field: { onChange, onBlur, value } }) => (
             <>
               <TouchableOpacity
-                style={[styles.input, { backgroundColor: colors.card, borderColor: errors.fecha_inicio ? colors.error : colors.border }]}
+                style={[styles.input, { backgroundColor: C.card, borderColor: errors.fecha_inicio ? C.error : C.border }]}
                 onPress={() => openDatePicker('fecha_inicio')}
               >
-                <Text style={value ? [styles.inputText, { color: colors.text }] : [styles.placeholderText, { color: colors.textMuted }]}>
+                <Text style={value ? [styles.inputText, { color: C.text }] : [styles.placeholderText, { color: C.textMuted }]}>
                   {value || 'Selecciona una fecha'}
                 </Text>
               </TouchableOpacity>
@@ -277,11 +313,11 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
             </>
           )}
         />
-        {errors.fecha_inicio && <Text style={[styles.textoError, { color: colors.error }]}>{errors.fecha_inicio.message}</Text>}
+        {errors.fecha_inicio && <Text style={[styles.textoError, { color: C.error }]}>{errors.fecha_inicio.message}</Text>}
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Fecha de Fin</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Fecha de Fin</Text>
         <Controller
           name="fecha_fin"
           control={control}
@@ -295,10 +331,10 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
           render={({ field: { onChange, onBlur, value } }) => (
             <>
               <TouchableOpacity
-                style={[styles.input, { backgroundColor: colors.card, borderColor: errors.fecha_fin ? colors.error : colors.border }]}
+                style={[styles.input, { backgroundColor: C.card, borderColor: errors.fecha_fin ? C.error : C.border }]}
                 onPress={() => openDatePicker('fecha_fin')}
               >
-                <Text style={value ? [styles.inputText, { color: colors.text }] : [styles.placeholderText, { color: colors.textMuted }]}>
+                <Text style={value ? [styles.inputText, { color: C.text }] : [styles.placeholderText, { color: C.textMuted }]}>
                   {value || 'Selecciona una fecha (o deja vacío)'}
                 </Text>
               </TouchableOpacity>
@@ -313,20 +349,20 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
             </>
           )}
         />
-        {errors.fecha_fin && <Text style={[styles.textoError, { color: colors.error }]}>{errors.fecha_fin.message}</Text>}
+        {errors.fecha_fin && <Text style={[styles.textoError, { color: C.error }]}>{errors.fecha_fin.message}</Text>}
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Repositorio GitHub</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Repositorio GitHub</Text>
         <Controller
           name="repositorio_github"
           control={control}
           rules={{ required: { value: true, message: 'El repositorio es obligatorio' } }}
           render={({ field: { onChange, onBlur, value } }) => (
             <AnimatedTextInput
-              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+              style={[styles.input, { backgroundColor: C.card, borderColor: C.border, color: C.text }]}
               placeholder="https://github.com/usuario/repositorio"
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={C.textMuted}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
@@ -336,11 +372,11 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
             />
           )}
         />
-        {errors.repositorio_github && <Text style={[styles.textoError, { color: colors.error }]}>{errors.repositorio_github.message}</Text>}
+        {errors.repositorio_github && <Text style={[styles.textoError, { color: C.error }]}>{errors.repositorio_github.message}</Text>}
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Estado del Proyecto</Text>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Estado del Proyecto</Text>
         <Controller
           name="estado"
           control={control}
@@ -351,15 +387,15 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
                   key={est}
                   style={[
                     styles.estadoBoton,
-                    { borderColor: colors.border, backgroundColor: colors.card },
-                    value === est && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    { borderColor: C.border, backgroundColor: C.card },
+                    value === est && { backgroundColor: C.primary, borderColor: C.primary },
                   ]}
                   onPress={() => onChange(est)}
                 >
                   <Text style={[
                     styles.estadoTexto,
-                    { color: colors.textSecondary },
-                    value === est && { color: colors.white, fontWeight: '700' },
+                    { color: C.textSecondary },
+                    value === est && { color: C.white, fontWeight: '700' },
                   ]}>{est}</Text>
                 </TouchableOpacity>
               ))}
@@ -369,27 +405,35 @@ export function RegistroProyectoForm({ onSuccess }: Props) {
       </View>
 
       <View style={styles.campoContenedor}>
-        <Text style={[styles.etiqueta, { color: colors.textSecondary }]}>Documento PDF (Opcional)</Text>
-        <TouchableOpacity style={[styles.documentButton, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={pickDocument}>
-          <Text style={[styles.documentButtonText, { color: colors.primary }]}>
+        <Text style={[styles.etiqueta, { color: C.textSecondary }]}>Documento PDF (Opcional)</Text>
+        <TouchableOpacity style={[styles.documentButton, { backgroundColor: C.card, borderColor: C.border }]} onPress={pickDocument}>
+          <Text style={[styles.documentButtonText, { color: C.primary }]}>
             {documento ? documento.name : 'Seleccionar archivo PDF'}
           </Text>
         </TouchableOpacity>
         {documento && (
-          <Text style={[styles.documentSelected, { color: colors.success }]}>Archivo seleccionado</Text>
+          <Text style={[styles.documentSelected, { color: C.success }]}>Archivo seleccionado</Text>
         )}
       </View>
 
-      <TouchableOpacity
-        style={[styles.botonGuardar, { backgroundColor: colors.primary }, cargando && styles.botonDeshabilitado]}
-        onPress={handleSubmit(onSubmit)}
-        disabled={cargando}
-      >
-        {cargando
-          ? <ActivityIndicator color={colors.white} />
-          : <Text style={[styles.botonTexto, { color: colors.white }]}>Registrar Proyecto</Text>
-        }
-      </TouchableOpacity>
+      <GlitchView trigger={errorGlitch} style={{ marginTop: 10 }} borderRadius={10}>
+        <TouchableOpacity
+          style={[styles.botonGuardar, { backgroundColor: C.primary }, cargando && styles.botonDeshabilitado]}
+          
+          onPress={handleSubmit(onSubmit, triggerErrorGlitch)}
+          disabled={cargando}
+        >
+          {cargando
+            ? <ActivityIndicator color={C.white} />
+            : <Text style={[styles.botonTexto, { color: C.white }]}>Registrar Proyecto</Text>
+          }
+        </TouchableOpacity>
+      </GlitchView>
+
+      
+      <EmojiExplosion trigger={mostrarExito} emojis={EMOJIS_EXITO} />
+      
+      <EmojiExplosion trigger={mostrarError} emojis={EMOJIS_ERROR} />
     </ScrollView>
   );
 }
@@ -425,7 +469,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 10,
   },
   botonDeshabilitado: { opacity: 0.6 },
   botonTexto: { fontSize: 16, fontWeight: '700' },

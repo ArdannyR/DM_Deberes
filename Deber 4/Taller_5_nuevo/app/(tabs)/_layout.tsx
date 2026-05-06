@@ -1,66 +1,46 @@
-import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect } from "react";
-import { AuthProvider, useAuth } from "@shared/context/AuthContext";
-import { ThemeProvider, useTheme, lightColors, darkColors } from "@shared/context/ThemeContext";
-import Animated, { useAnimatedStyle, interpolateColor, useSharedValue, withTiming } from "react-native-reanimated";
-import { StyleSheet } from "react-native";
+import { Tabs } from 'expo-router';
+import { useAuth } from '@shared/context/AuthContext';
+import { TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-function AnimatedRoot({ children }: { children: React.ReactNode }) {
-  const { isDarkMode } = useTheme();
-  const themeValue = useSharedValue(0);
+const PRIMARY = '#0C2340';
+const WHITE = '#FFFFFF';
 
-  useEffect(() => {
-    themeValue.value = withTiming(isDarkMode ? 1 : 0, { duration: 600 });
-  }, [isDarkMode]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      themeValue.value,
-      [0, 1],
-      [lightColors.background, darkColors.background]
-    ),
-    flex: 1,
-  }));
-
-  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
-}
-
-function RootLayoutNav() {
-  const { session, loading } = useAuth();
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loading) return;
-    const inAuthGroup = segments[0] === "(tabs)";
-    if (!session && inAuthGroup) {
-      router.replace("/login");
-    } else if (session && segments[0] === "login") {
-      router.replace("/(tabs)");
-    }
-  }, [session, loading, segments]);
-
-  if (loading) return null;
-
+export default function TabsLayout() {
+  const { signOut } = useAuth();
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ title: 'Iniciar Sesión', headerShown: false }} />
-      <Stack.Screen name="proyecto/[id]" options={{ title: 'Detalle del Proyecto' }} />
-      <Stack.Screen name="proyecto/editar/[id]" options={{ title: 'Editar Proyecto' }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
-  );
-}
-
-export default function RootLayout() {
-  return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AnimatedRoot>
-          <RootLayoutNav />
-        </AnimatedRoot>
-      </AuthProvider>
-    </ThemeProvider>
+    <Tabs
+      screenOptions={{
+        headerStyle: { backgroundColor: PRIMARY },
+        headerTintColor: WHITE,
+        tabBarActiveTintColor: PRIMARY,
+        headerRight: () => (
+          <TouchableOpacity onPress={signOut} style={{ marginRight: 16 }}>
+            <MaterialCommunityIcons name="logout-variant" size={26} color={WHITE} />
+          </TouchableOpacity>
+        ),
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Proyectos',
+          tabBarLabel: 'Proyectos',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="view-dashboard-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="registro"
+        options={{
+          title: 'Registrar',
+          tabBarLabel: 'Registrar',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="plus-circle-outline" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tabs>
   );
 }

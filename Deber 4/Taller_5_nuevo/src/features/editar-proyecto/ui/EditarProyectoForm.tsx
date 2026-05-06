@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
 // [RETO 3]: Feature de edición con formulario pre-llenado.
 import {
-  View, Text, TextInput, TouchableOpacity, ScrollView,
+  View, Text, TouchableOpacity, ScrollView,
   StyleSheet, Alert, ActivityIndicator, Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as DocumentPicker from 'expo-document-picker';
-import { useForm, Controller, setValue } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useRouter } from 'expo-router';
 import type { EstadoProyecto, ProyectoTesis }
   from '@entities/proyecto-tesis/model/types';
 import { proyectoApi } from '@entities/proyecto-tesis/api/proyectoApi';
 import { uploadDocument } from '@features/registro-proyecto/api/createProyecto';
+import { AnimatedTextInput } from '@shared/ui/AnimatedTextInput';
+import { EmojiExplosion } from '@shared/ui/EmojiExplosion';
+import { GlitchView } from '@shared/ui/GlitchView';
+
+const EMOJIS_EXITO = ['🎉', '🚀', '✨', '💻', '👏', '🔥'];
+const EMOJIS_ERROR = ['⚠️', '❌', '😅', '📝', '🤔', '🛑'];
 
 interface Props {
   proyectoInicial: ProyectoTesis;
@@ -38,6 +44,17 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
   const [cargando, setCargando] = useState(false);
   const [nuevoDocumento, setNuevoDocumento] = useState<{ uri: string; name: string } | null>(null);
   const [eliminarDocumento, setEliminarDocumento] = useState(false);
+  const [mostrarExito, setMostrarExito] = useState(false);
+  const [mostrarError, setMostrarError] = useState(false);
+  const [errorGlitch, setErrorGlitch] = useState(false);
+
+  
+  const triggerErrorGlitch = () => {
+    setMostrarError(true);
+    setErrorGlitch(true);
+    setTimeout(() => setMostrarError(false), 1500);
+    setTimeout(() => setErrorGlitch(false), 250);
+  };
   // [RETO 5]: Validaciones del formulario usando React Hook Form.
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
@@ -66,6 +83,7 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
     return true;
   };
 
+  
   const onSubmit = async (data: FormValues) => {
     try {
       setCargando(true);
@@ -78,14 +96,20 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
           documento_url = url;
         } else {
           Alert.alert('Error', 'No se pudo subir el documento. Se mantendrá el anterior.');
-          documento_url = proyectoInicial.documento_url;
+          documento_url = proyectoInicial.documento_url || null;
         }
       }
 
       await proyectoApi.update(proyectoInicial.id, { ...data, documento_url });
-      Alert.alert('¡Éxito!', 'Proyecto actualizado correctamente.', [
-        { text: 'OK', onPress: () => router.replace('/') }
-      ]);
+      
+      
+      setMostrarExito(true);
+      setTimeout(() => {
+        setMostrarExito(false);
+        Alert.alert('¡Éxito!', 'Proyecto actualizado correctamente.', [
+          { text: 'OK', onPress: () => router.replace('/') }
+        ]);
+      }, 2000);
     } catch (error) {
       Alert.alert('Error', 'No se pudo actualizar el proyecto. Verifica tu conexión.');
     } finally {
@@ -107,6 +131,7 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
     setShowPicker(prev => ({ ...prev, [field]: true }));
   };
 
+  
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -151,13 +176,14 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
             minLength: { value: 5, message: 'El título debe tener al menos 5 caracteres' },
           }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.titulo && styles.inputError]}
+            <AnimatedTextInput
+              style={styles.input}
               placeholder="Ej: Sistema de gestión de inventarios para PYMES"
               placeholderTextColor="#999"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
+              error={!!errors.titulo}
             />
           )}
         />
@@ -174,8 +200,8 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
             minLength: { value: 20, message: 'La descripción debe tener al menos 20 caracteres' },
           }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, styles.inputMultiline, errors.descripcion && styles.inputError]}
+            <AnimatedTextInput
+              style={[styles.input, styles.inputMultiline]}
               placeholder="Describe brevemente el objetivo del proyecto..."
               placeholderTextColor="#999"
               onBlur={onBlur}
@@ -183,6 +209,7 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
               value={value}
               multiline
               numberOfLines={3}
+              error={!!errors.descripcion}
             />
           )}
         />
@@ -199,13 +226,14 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
             pattern: { value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,]+$/, message: 'Solo se permiten letras, espacios y comas' },
           }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.autores && styles.inputError]}
+            <AnimatedTextInput
+              style={styles.input}
               placeholder="Ej: Ana Torres, Luis Pérez"
               placeholderTextColor="#999"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
+              error={!!errors.autores}
             />
           )}
         />
@@ -222,13 +250,14 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
             pattern: { value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.]+$/, message: 'Solo letras, espacios y puntos' },
           }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.tutor_docente && styles.inputError]}
+            <AnimatedTextInput
+              style={styles.input}
               placeholder="Ej: Ing. Juan Carlos Gonzalez Msc."
               placeholderTextColor="#999"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
+              error={!!errors.tutor_docente}
             />
           )}
         />
@@ -242,13 +271,14 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
           control={control}
           rules={{ required: { value: true, message: 'Las tecnologías son obligatorias' } }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.tecnologias_utilizadas && styles.inputError]}
+            <AnimatedTextInput
+              style={styles.input}
               placeholder="Ej: React Native, Node.js, PostgreSQL, AWS"
               placeholderTextColor="#999"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
+              error={!!errors.tecnologias_utilizadas}
             />
           )}
         />
@@ -328,8 +358,8 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
           control={control}
           rules={{ required: { value: true, message: 'El repositorio es obligatorio' } }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, errors.repositorio_github && styles.inputError]}
+            <AnimatedTextInput
+              style={styles.input}
               placeholder="https://github.com/usuario/repositorio"
               placeholderTextColor="#999"
               onBlur={onBlur}
@@ -337,6 +367,7 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
               value={value}
               keyboardType="url"
               autoCapitalize="none"
+              error={!!errors.repositorio_github}
             />
           )}
         />
@@ -398,16 +429,24 @@ export function EditarProyectoForm({ proyectoInicial, onSuccess }: Props) {
         />
       </View>
 
-      <TouchableOpacity
-        style={[styles.botonGuardar, cargando && styles.botonDeshabilitado]}
-        onPress={handleSubmit(onSubmit)}
-        disabled={cargando}
-      >
-        {cargando
-          ? <ActivityIndicator color="#fff" />
-          : <Text style={styles.botonTexto}>Guardar Cambios</Text>
-        }
-      </TouchableOpacity>
+      <GlitchView trigger={errorGlitch} style={{ marginTop: 10 }} borderRadius={10}>
+        <TouchableOpacity
+          style={[styles.botonGuardar, cargando && styles.botonDeshabilitado]}
+          
+          onPress={handleSubmit(onSubmit, triggerErrorGlitch)}
+          disabled={cargando}
+        >
+          {cargando
+            ? <ActivityIndicator color="#fff" />
+            : <Text style={styles.botonTexto}>Guardar Cambios</Text>
+          }
+        </TouchableOpacity>
+      </GlitchView>
+
+      
+      <EmojiExplosion trigger={mostrarExito} emojis={EMOJIS_EXITO} />
+      
+      <EmojiExplosion trigger={mostrarError} emojis={EMOJIS_ERROR} />
     </ScrollView>
   );
 }
@@ -455,7 +494,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 10,
   },
   botonDeshabilitado: { opacity: 0.6 },
   botonTexto: { color: '#fff', fontSize: 16, fontWeight: '700' },

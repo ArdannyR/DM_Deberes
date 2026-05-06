@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import type { ProyectoTesis } from '@entities/proyecto-tesis/model/types';
 import { proyectoApi } from '@entities/proyecto-tesis/api/proyectoApi';
-import { useTheme } from '@shared/context/ThemeContext';
+import { EmojiExplosion } from '@shared/ui/EmojiExplosion';
+import { GlitchView } from '@shared/ui/GlitchView';
+
+const EMOJIS_ELIMINAR = ['🗑️', '💨', '💥', '👋', '🧹', '🔥'];
+const C = {
+  primary: '#0C2340',
+  card: '#FFFFFF',
+  text: '#1A1A1A',
+  textMuted: '#666666',
+  textSecondary: '#444444',
+  secondary: '#E74C3C',
+} as const;
 
 const BADGE_COLOR: Record<string, string> = {
   'En Progreso': '#3498DB',
@@ -20,7 +31,9 @@ interface Props {
 
 export function ProyectoCard({ proyecto, index = 0, onDeleteSuccess }: Props) {
   const router = useRouter();
-  const { colors } = useTheme();
+  const [mostrarEliminar, setMostrarEliminar] = useState(false);
+  const [isGlitching, setIsGlitching] = useState(false);
+
 
   const abrirRepo = () => {
     if (proyecto.repositorio_github)
@@ -36,13 +49,21 @@ export function ProyectoCard({ proyecto, index = 0, onDeleteSuccess }: Props) {
         {
           text: 'Eliminar',
           style: 'destructive',
-          onPress: async () => {
-            try {
-              await proyectoApi.delete(proyecto.id);
-              onDeleteSuccess?.();
-            } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar el proyecto.');
-            }
+           onPress: () => {
+            
+            setMostrarEliminar(true);
+            
+            setIsGlitching(true);
+            
+            setTimeout(async () => {
+              try {
+                await proyectoApi.delete(proyecto.id);
+                onDeleteSuccess?.();
+              } catch (error) {
+                setIsGlitching(false);
+                Alert.alert('Error', 'No se pudo eliminar el proyecto.');
+              }
+            }, 250);
           },
         },
       ]
@@ -50,52 +71,58 @@ export function ProyectoCard({ proyecto, index = 0, onDeleteSuccess }: Props) {
   };
 
   return (
-    <Animated.View entering={FadeInDown.duration(500).delay(index * 100)}>
-      <TouchableOpacity
-        style={[styles.tarjeta, { backgroundColor: colors.card, shadowColor: colors.text }]}
-        onPress={() => router.push(`/proyecto/${proyecto.id}`)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.encabezado}>
-          <Text style={[styles.titulo, { color: colors.primary }]} numberOfLines={2}>{proyecto.titulo}</Text>
-          <View style={[styles.badge, { backgroundColor: BADGE_COLOR[proyecto.estado] }]}>
-            <Text style={styles.badgeTexto}>{proyecto.estado}</Text>
-          </View>
-        </View>
-
-        <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Autores</Text>
-        <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.autores}</Text>
-
-        <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Tutor Docente</Text>
-        <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.tutor_docente}</Text>
-
-        <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Tecnologías</Text>
-        <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.tecnologias_utilizadas}</Text>
-
-        <View style={styles.filaFechas}>
-          <View style={styles.fecha}>
-            <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Inicio</Text>
-            <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.fecha_inicio}</Text>
-          </View>
-          {proyecto.fecha_fin && (
-            <View style={styles.fecha}>
-              <Text style={[styles.etiqueta, { color: colors.textMuted }]}>Fin</Text>
-              <Text style={[styles.valor, { color: colors.textSecondary }]}>{proyecto.fecha_fin}</Text>
+    
+    <Animated.View entering={FadeInDown.duration(500).delay(index * 500)}>
+      
+      <GlitchView trigger={isGlitching} style={{ marginBottom: 8 }} borderRadius={12}>
+        <TouchableOpacity
+          style={[styles.tarjeta, { backgroundColor: C.card, shadowColor: C.text }]}
+          onPress={() => router.push(`/proyecto/${proyecto.id}`)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.encabezado}>
+            <Text style={[styles.titulo, { color: C.primary }]} numberOfLines={2}>{proyecto.titulo}</Text>
+            <View style={[styles.badge, { backgroundColor: BADGE_COLOR[proyecto.estado] }]}>
+              <Text style={styles.badgeTexto}>{proyecto.estado}</Text>
             </View>
-          )}
-        </View>
+          </View>
 
-        <View style={styles.filaBotones}>
-          {proyecto.repositorio_github && (
-            <TouchableOpacity style={[styles.repoBoton, { backgroundColor: colors.isDarkMode ? 'rgba(56,189,248,0.15)' : '#EBF5FB' }]} onPress={abrirRepo}>
-              <Text style={[styles.repoTexto, { color: colors.primary }]}>Ver en GitHub →</Text>
+          <Text style={[styles.etiqueta, { color: C.textMuted }]}>Autores</Text>
+          <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.autores}</Text>
+
+          <Text style={[styles.etiqueta, { color: C.textMuted }]}>Tutor Docente</Text>
+          <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.tutor_docente}</Text>
+
+          <Text style={[styles.etiqueta, { color: C.textMuted }]}>Tecnologías</Text>
+          <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.tecnologias_utilizadas}</Text>
+
+          <View style={styles.filaFechas}>
+            <View style={styles.fecha}>
+              <Text style={[styles.etiqueta, { color: C.textMuted }]}>Inicio</Text>
+              <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.fecha_inicio}</Text>
+            </View>
+            {proyecto.fecha_fin && (
+              <View style={styles.fecha}>
+                <Text style={[styles.etiqueta, { color: C.textMuted }]}>Fin</Text>
+                <Text style={[styles.valor, { color: C.textSecondary }]}>{proyecto.fecha_fin}</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.filaBotones}>
+            {proyecto.repositorio_github && (
+              <TouchableOpacity style={[styles.repoBoton, { backgroundColor: '#EBF5FB' }]} onPress={abrirRepo}>
+                <Text style={[styles.repoTexto, { color: C.primary }]}>Ver en GitHub →</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={[styles.eliminarBoton, { backgroundColor: '#FDEEEE' }]} onPress={handleDelete}>
+              <Text style={[styles.eliminarTexto, { color: C.secondary }]}>Eliminar Proyecto</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={[styles.eliminarBoton, { backgroundColor: colors.isDarkMode ? 'rgba(248,113,113,0.15)' : '#FDEEEE' }]} onPress={handleDelete}>
-            <Text style={[styles.eliminarTexto, { color: colors.secondary }]}>Eliminar Proyecto</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+        
+        <EmojiExplosion trigger={mostrarEliminar} emojis={EMOJIS_ELIMINAR} />
+      </GlitchView>
     </Animated.View>
   );
 }
@@ -104,7 +131,6 @@ const styles = StyleSheet.create({
   tarjeta: {
     borderRadius: 12,
     padding: 12,
-    marginBottom: 8,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,

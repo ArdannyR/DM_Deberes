@@ -4,17 +4,17 @@ import { ProyectoCard } from "@widgets/proyecto-card/ProyectoCard";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text } from "react-native";
-
-export function ListaProyectos({ searchQuery }: { searchQuery?: string }) {
+interface Props {
+  searchQuery?: string;
+}
+export function ListaProyectos({ searchQuery }: Props) {
   const [proyectos, setProyectos] = useState<ProyectoTesis[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const primeraEntrada = useRef(true);
-
   const cargarProyectos = useCallback(async (silent = false) => {
     if (!silent) setCargando(true);
     setError(null);
-
     try {
       const data = searchQuery
         ? await proyectoApi.search(searchQuery)
@@ -27,33 +27,26 @@ export function ListaProyectos({ searchQuery }: { searchQuery?: string }) {
       if (!silent) setCargando(false);
     }
   }, [searchQuery]);
-
   useEffect(() => {
     cargarProyectos();
   }, [cargarProyectos]);
-
   useFocusEffect(
     useCallback(() => {
       if (primeraEntrada.current) {
         primeraEntrada.current = false;
         return;
       }
-
       cargarProyectos(true);
     }, [cargarProyectos]),
   );
-
   if (cargando)
     return (
       <ActivityIndicator size="large" color="#1A3A5C" style={styles.centro} />
     );
-
   if (error)
     return <Text style={styles.error}>Error al cargar proyectos: {error}</Text>;
-
   if (proyectos.length === 0)
     return <Text style={styles.vacio}>No hay proyectos registrados aún.</Text>;
-
   return (
     <FlatList
       data={proyectos}
@@ -69,7 +62,6 @@ export function ListaProyectos({ searchQuery }: { searchQuery?: string }) {
     />
   );
 }
-
 const styles = StyleSheet.create({
   lista: { padding: 16 },
   centro: { flex: 1, justifyContent: "center" },

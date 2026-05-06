@@ -1,46 +1,17 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { AuthProvider, useAuth } from "@shared/context/AuthContext";
-import { ThemeProvider, useTheme, lightColors, darkColors } from "@shared/context/ThemeContext";
-import Animated, { useAnimatedStyle, interpolateColor, useSharedValue, withTiming } from "react-native-reanimated";
-import { StyleSheet } from "react-native";
 
-function AnimatedRoot({ children }: { children: React.ReactNode }) {
-  const { isDarkMode } = useTheme();
-  const themeValue = useSharedValue(0);
-
-  useEffect(() => {
-    themeValue.value = withTiming(isDarkMode ? 1 : 0, { duration: 600 });
-  }, [isDarkMode]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      themeValue.value,
-      [0, 1],
-      [lightColors.background, darkColors.background]
-    ),
-    flex: 1,
-  }));
-
-  const animatedTextColor = interpolateColor(
-    themeValue.value,
-    [0, 1],
-    [lightColors.text, darkColors.text]
-  );
-
-  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
-}
-
+// 🎓 [DEBER 4 - REQUISITO 1: Autenticación Supabase]: Componente que protege las rutas redirigiendo al login si no hay sesión activa
 function RootLayoutNav() {
   const { session, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
+  // 🎓 [DEBER 4 - REQUISITO 1: Autenticación Supabase]: Lógica de protección de rutas - redirección automática al /login si no hay sesión activa
   useEffect(() => {
     if (loading) return;
-
     const inAuthGroup = segments[0] === "(tabs)";
-
     if (!session && inAuthGroup) {
       router.replace("/login");
     } else if (session && segments[0] === "login") {
@@ -63,12 +34,8 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AnimatedRoot>
-          <RootLayoutNav />
-        </AnimatedRoot>
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }

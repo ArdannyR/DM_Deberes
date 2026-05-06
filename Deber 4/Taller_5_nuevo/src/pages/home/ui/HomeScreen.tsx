@@ -2,40 +2,44 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import { ListaProyectos } from '@features/lista-proyectos/ui/ListaProyectos';
 import { useProyectos } from '@entities/proyecto-tesis/model/useProyectos';
-import { useTheme } from '@shared/context/ThemeContext';
 
+const C = {
+  primary: '#0C2340',
+  background: '#F5F7FA',
+  card: '#FFFFFF',
+  text: '#1A1A1A',
+  textMuted: '#666666',
+  border: '#E0E0E0',
+} as const;
 export function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const { proyectos, loading } = useProyectos();
-  const { colors } = useTheme();
-
   return (
-    <View style={[styles.contenedor, { backgroundColor: colors.background }]}>
-      <View style={[styles.headerContainer, { backgroundColor: colors.card, shadowColor: colors.text }]}>
+    <View style={[styles.contenedor, { backgroundColor: C.background }]}>
+      <View style={[styles.headerContainer, { backgroundColor: C.card, shadowColor: C.text }]}>
         <Image source={require('../../../../assets/images/esfot-shield-removebg-preview.png')} style={styles.logo} resizeMode="contain" />
         <View>
-          <Text style={[styles.headerTitle, { color: colors.primary }]}>Proyectos de Tesis</Text>
-          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>ESFOT - EPN</Text>
+          <Text style={[styles.headerTitle, { color: C.primary }]}>Proyectos de Tesis</Text>
+          <Text style={[styles.headerSubtitle, { color: C.textMuted }]}>ESFOT - EPN</Text>
         </View>
       </View>
       <TextInput
-        style={[styles.searchInput, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+        style={[styles.searchInput, { backgroundColor: C.card, borderColor: C.border, color: C.text }]}
         placeholder="Buscar proyectos..."
-        placeholderTextColor={colors.textMuted}
+        placeholderTextColor={C.textMuted}
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
       {loading ? (
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+        <ActivityIndicator size="large" color={C.primary} style={styles.loader} />
       ) : proyectos.length === 0 ? (
-        <Text style={[styles.emptyText, { color: colors.textMuted }]}>No hay proyectos registrados</Text>
+        <Text style={[styles.emptyText, { color: C.textMuted }]}>No hay proyectos registrados</Text>
       ) : (
         <ListaProyectos searchQuery={searchQuery} />
       )}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   contenedor: { flex: 1 },
   headerContainer: {
