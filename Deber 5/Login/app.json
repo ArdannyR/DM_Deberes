@@ -20,7 +20,14 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.esauv.authesfot"
+      "package": "com.ardannyr.authesfot",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [{ "scheme": "authesfot" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "output": "static",
@@ -40,7 +47,13 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-web-browser",
+        {
+          "browser": "chrome-custom-tab"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
@@ -49,7 +62,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "e3133f62-4047-4215-adcf-f714aa6aef88"
+        "projectId": ""
       }
     }
   }

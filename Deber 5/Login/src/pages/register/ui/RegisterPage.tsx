@@ -17,6 +17,7 @@ export const RegisterPage = () => {
   const register = useRegister();
  
   const handleRegister = async () => {
+    console.log("Intentando registrar email:", email);
     if (!email || !password || !confirm) {
       Alert.alert("Campos requeridos", "Completa todos los campos.");
       return;
@@ -34,9 +35,11 @@ export const RegisterPage = () => {
       return;
     }
     try {
+      console.log("Llamando a mutateAsync...");
       await register.mutateAsync({ email, password });
       setSuccess(true);
     } catch (err: any) {
+      console.error("Error capturado:", err);
       Alert.alert("Error al registrarse", err.message);
     }
   };
