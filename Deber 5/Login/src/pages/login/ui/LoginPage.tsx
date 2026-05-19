@@ -5,6 +5,7 @@ import {
 } from "react-native";
 import { router }          from "expo-router";
 import { useLogin }        from "@/features/auth/model/useLogin";
+import { useGoogleLogin }  from "@/features/auth/model/useGoogleLogin";
 import { Input }           from "@/shared/ui/Input";
 import { Button }          from "@/shared/ui/Button";
 import { theme }           from "@/core/styles/theme";
@@ -13,7 +14,8 @@ export const LoginPage = () => {
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const login = useLogin();
- 
+  const googleLogin = useGoogleLogin();
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Campos requeridos", "Completa email y contraseña.");
@@ -27,7 +29,16 @@ export const LoginPage = () => {
       Alert.alert("Error", err.message ?? "Credenciales incorrectas.");
     }
   };
- 
+
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin.mutateAsync();
+    } catch (err: any) {
+      if (err.code === "GOOGLE_CANCELLED") return;
+      Alert.alert("Error", err.message ?? "No se pudo iniciar sesión con Google.");
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -72,6 +83,20 @@ export const LoginPage = () => {
               isLoading={login.isPending}
               label="Iniciar sesión"
             />
+
+            <View style={styles.separator}>
+              <View style={styles.line} />
+              <Text style={styles.separatorText}>o continúa con</Text>
+              <View style={styles.line} />
+            </View>
+
+            <Button
+              onPress={handleGoogleLogin}
+              isLoading={googleLogin.isPending}
+              label="Continuar con Google"
+              variant="ghost"
+            />
+
             <TouchableOpacity
               onPress={() => router.push("/(auth)/register")}
               style={{ alignItems:"center" }}
@@ -103,4 +128,7 @@ const styles = StyleSheet.create({
   form:      { padding:28, gap:16 },
   link:      { color: theme.colors.accent, fontSize:14 },
   linkMuted: { color: theme.colors.textMuted, fontSize:14 },
+  separator: { flexDirection:"row", alignItems:"center", gap:12 },
+  line:      { flex:1, height:1, backgroundColor: theme.colors.border },
+  separatorText: { color: theme.colors.textMuted, fontSize:13 },
 });
