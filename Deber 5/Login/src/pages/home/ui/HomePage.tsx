@@ -12,6 +12,7 @@ import { Input as TGInput } from "tamagui";
 import { SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Input } from "@/shared/ui/Input";
+import { supabase } from "@/shared/api/supabase";
 import { useSession } from "@/features/session/model/useSession";
 import { useActivities, Activity } from "@/features/activities/model/useActivities";
 
@@ -52,6 +53,10 @@ export const HomePage = () => {
     });
   }, [activities, searchQuery, filterType]);
 
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
 
@@ -62,6 +67,32 @@ export const HomePage = () => {
       { text: "Cancelar", style: "cancel" },
       { text: "Salir", style: "destructive", onPress: () => signOut() },
     ]);
+  };
+
+  const handleUpdatePassword = async () => {
+    const regex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+    if (!regex.test(newPassword)) {
+      Alert.alert(
+        "Contraseña no válida",
+        "Debe tener al menos 8 caracteres, una mayúscula y un carácter especial (!@#$%^&*)."
+      );
+      return;
+    }
+    setIsUpdatingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        Alert.alert("Error", error.message);
+        return;
+      }
+      Alert.alert("Éxito", "Contraseña actualizada correctamente.");
+      setIsPasswordModalVisible(false);
+      setNewPassword("");
+    } catch (err: any) {
+      Alert.alert("Error", err.message ?? "No se pudo actualizar la contraseña.");
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const openCreate = () => {
@@ -302,9 +333,9 @@ export const HomePage = () => {
         </YStack>
 
         {/* Actions */}
-        <XStack gap="$3" width="100%" alignItems="center" paddingBottom="$6" paddingHorizontal={24}>
+        <YStack gap="$3" paddingBottom="$6" paddingHorizontal={24}>
           <Button
-            flex={1}
+            width="100%"
             backgroundColor="$accent"
             borderRadius={12}
             onPress={openCreate}
@@ -314,17 +345,27 @@ export const HomePage = () => {
               <Text fontSize={12} fontWeight="700" color="#fff">Añadir Actividad</Text>
             </XStack>
           </Button>
-          <Button
-            flex={1}
-            backgroundColor="transparent"
-            borderWidth={2}
-            borderColor="$primary"
-            borderRadius={12}
-            onPress={handleSignOut}
-          >
-            <Text fontSize={12} fontWeight="600" color="$primary">Cerrar sesión</Text>
-          </Button>
-        </XStack>
+          <XStack gap="$3" width="100%">
+            <Button
+              flex={1}
+              backgroundColor="$primary"
+              borderRadius={12}
+              onPress={() => setIsPasswordModalVisible(true)}
+            >
+              <Text fontSize={12} fontWeight="700" color="#fff">Cambiar Contraseña</Text>
+            </Button>
+            <Button
+              flex={1}
+              backgroundColor="transparent"
+              borderWidth={2}
+              borderColor="$primary"
+              borderRadius={12}
+              onPress={handleSignOut}
+            >
+              <Text fontSize={12} fontWeight="600" color="$primary">Cerrar sesión</Text>
+            </Button>
+          </XStack>
+        </YStack>
 
         {/* Modal */}
         <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
@@ -450,6 +491,57 @@ export const HomePage = () => {
                   borderColor="$primary"
                   borderRadius={12}
                   onPress={() => setModalVisible(false)}
+                >
+                  <Text fontSize={12} fontWeight="600" color="$primary">Cancelar</Text>
+                </Button>
+              </XStack>
+            </YStack>
+          </SafeAreaView>
+        </Modal>
+
+        {/* Password Modal */}
+        <Modal visible={isPasswordModalVisible} animationType="slide" presentationStyle="pageSheet">
+          <SafeAreaView style={{ flex: 1, backgroundColor: "#F0F4FF" }}>
+            <YStack flex={1} padding="$5" gap="$4">
+              <Text fontSize={22} fontWeight="800" color="$primary" textAlign="center" marginBottom={24}>
+                Cambiar Contraseña
+              </Text>
+              <Input
+                label="Nueva Contraseña"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                placeholder="Nueva contraseña..."
+                secureTextEntry
+                isPassword
+              />
+              <Text fontSize={12} color="$textMuted" marginTop="$2">
+                La contraseña debe tener al menos 8 caracteres, 1 mayúscula y 1 carácter especial.
+              </Text>
+              <XStack gap="$3" width="100%" marginTop="$5" justifyContent="space-between">
+                <Button
+                  flex={1}
+                  backgroundColor="$primary"
+                  borderRadius={12}
+                  onPress={handleUpdatePassword}
+                  opacity={isUpdatingPassword ? 0.5 : 1}
+                  disabled={isUpdatingPassword}
+                >
+                  {isUpdatingPassword ? (
+                    <Spinner color="#fff" />
+                  ) : (
+                    <Text fontSize={12} fontWeight="700" color="#fff">Guardar</Text>
+                  )}
+                </Button>
+                <Button
+                  flex={1}
+                  backgroundColor="transparent"
+                  borderWidth={2}
+                  borderColor="$primary"
+                  borderRadius={12}
+                  onPress={() => {
+                    setIsPasswordModalVisible(false);
+                    setNewPassword("");
+                  }}
                 >
                   <Text fontSize={12} fontWeight="600" color="$primary">Cancelar</Text>
                 </Button>
