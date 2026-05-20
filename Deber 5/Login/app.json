@@ -3,7 +3,7 @@
     "name": "auth-esfot",
     "slug": "auth-esfot",
     "version": "1.0.0",
-    "jsEngine": "jsc", 
+    "jsEngine": "jsc",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "authesfot",
@@ -21,7 +21,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.ardannyr.authesfot",
+      "package": "auth.esfot.app",
       "intentFilters": [
         {
           "action": "VIEW",
@@ -70,7 +70,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "bbf75960-c76d-4d7f-85e3-dac9ad3299a8"
+        "projectId": "5230beb7-a993-453f-a92a-e53894473ff4"
       }
     }
   }
