@@ -3,11 +3,12 @@
     "name": "auth-esfot",
     "slug": "auth-esfot",
     "version": "1.0.0",
+    "jsEngine": "jsc", 
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "authesfot",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
@@ -24,8 +25,15 @@
       "intentFilters": [
         {
           "action": "VIEW",
-          "data": [{ "scheme": "authesfot" }],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "authesfot"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -57,12 +65,12 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": false
     },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": ""
+        "projectId": "bbf75960-c76d-4d7f-85e3-dac9ad3299a8"
       }
     }
   }

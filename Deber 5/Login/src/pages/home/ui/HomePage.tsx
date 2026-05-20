@@ -316,7 +316,7 @@ export const HomePage = () => {
               ListEmptyComponent={
                 <YStack alignItems="center" justifyContent="center" gap={12} paddingVertical={40} width="100%">
                   <LottieView
-                    source={require("@/../assets/animations/empty.json")}
+                    source={require("../../../../assets/animations/empty.json")}
                     autoPlay
                     loop
                     style={{ width: 200, height: 200 }}

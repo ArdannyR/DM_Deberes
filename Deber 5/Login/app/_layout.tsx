@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Stack, router } from "expo-router";
+import { Stack, router, useSegments } from "expo-router";
 import { TamaguiProvider } from "tamagui";
 import tamaguiConfig from "../tamagui.config";
 import { QueryProvider } from "@/core/providers/QueryProvider";
@@ -7,15 +7,17 @@ import { useSession } from "@/features/session/model/useSession";
 
 function AuthGuard() {
   const { isAuthenticated, isLoading } = useSession();
+  const segments = useSegments();
 
   useEffect(() => {
     if (isLoading) return;
-    if (isAuthenticated) {
+    const inAuthGroup = segments[0] === "(auth)";
+    if (isAuthenticated && inAuthGroup) {
       router.replace("/home");
-    } else {
+    } else if (!isAuthenticated && !inAuthGroup) {
       router.replace("/(auth)/login");
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, segments]);
 
   return null;
 }
