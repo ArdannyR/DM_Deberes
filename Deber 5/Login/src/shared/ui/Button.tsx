@@ -1,7 +1,5 @@
-import {
-  TouchableOpacity, Text, ActivityIndicator, StyleSheet
-} from "react-native";
- 
+import { Button as TButton, Spinner, Text } from "tamagui";
+
 interface ButtonProps {
   onPress:    () => void;
   label:      string;
@@ -9,33 +7,46 @@ interface ButtonProps {
   variant?:   "primary" | "ghost" | "danger";
   disabled?:  boolean;
 }
- 
+
+const bgMap: Record<string, string> = {
+  primary: "$primary",
+  ghost:   "transparent",
+  danger:  "$danger",
+};
+
+const borderMap: Record<string, string> = {
+  primary: "$primary",
+  ghost:   "$primary",
+  danger:  "$danger",
+};
+
 export const Button = ({
   onPress, label, isLoading, variant = "primary", disabled
 }: ButtonProps) => {
   const isDisabled = disabled || isLoading;
   return (
-    <TouchableOpacity
+    <TButton
       onPress={onPress}
       disabled={isDisabled}
-      style={[styles.base, styles[variant], isDisabled && styles.disabled]}
-      activeOpacity={0.8}
+      backgroundColor={bgMap[variant]}
+      borderWidth={variant === "ghost" ? 2 : 0}
+      borderColor={borderMap[variant]}
+      size="$4"
+      paddingHorizontal={24}
+      opacity={isDisabled ? 0.5 : 1}
+      pressStyle={{ opacity: 0.8 }}
     >
-      {isLoading
-        ? <ActivityIndicator color="#fff" />
-        : <Text style={[styles.label, variant === "ghost" && styles.labelGhost]}>{label}</Text>
-      }
-    </TouchableOpacity>
+      {isLoading ? (
+        <Spinner color="#fff" />
+      ) : (
+        <Text
+          color={variant === "ghost" ? "$primary" : "#fff"}
+          fontSize={16}
+          fontWeight="600"
+        >
+          {label}
+        </Text>
+      )}
+    </TButton>
   );
 };
- 
-const styles = StyleSheet.create({
-  base:        { borderRadius:12, paddingVertical:14, paddingHorizontal:24,
-                 alignItems:"center", justifyContent:"center" },
-  primary:     { backgroundColor:"#1B3A6B" },
-  ghost:       { backgroundColor:"transparent", borderWidth:2, borderColor:"#1B3A6B" },
-  danger:      { backgroundColor:"#DC2626" },
-  disabled:    { opacity:0.5 },
-  label:       { color:"#fff", fontSize:16, fontWeight:"600" },
-  labelGhost:  { color:"#1B3A6B" },
-});

@@ -41,6 +41,7 @@ export const useGoogleLogin = () => {
         await WebBrowser.coolDownAsync();
         
         // Redirección forzada al home
+        console.log("Redirigiendo a home")
         router.replace("/home"); 
       }
     } catch (err: any) {

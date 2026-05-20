@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { TouchableOpacity } from "react-native";
+import { YStack, Text, Input as TInput, XStack } from "tamagui";
 import { Ionicons } from "@expo/vector-icons";
 
 interface InputProps {
@@ -22,28 +23,35 @@ export const Input = ({
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   return (
-    <View style={styles.wrapper}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputWrapper}>
-        <TextInput
+    <YStack gap={6}>
+      <Text fontSize={14} fontWeight="500" color="$textMid">
+        {label}
+      </Text>
+      <XStack position="relative" alignItems="center">
+        <TInput
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor="#666666"
           secureTextEntry={isPassword ? !isPasswordVisible : secureTextEntry}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
-          style={[
-            styles.input,
-            isPassword ? styles.inputWithIcon : null,
-            error ? styles.inputError : null,
-          ]}
+          borderWidth={1.5}
+          borderColor={error ? "#DC2626" : "$border"}
+          borderRadius={10}
+          paddingHorizontal={16}
+          paddingVertical={13}
+          fontSize={15}
+          color="black"
+          backgroundColor="$inputBg"
+          paddingRight={isPassword ? 44 : 16}
+          flex={1}
         />
         {isPassword && (
           <TouchableOpacity
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-            style={styles.eyeButton}
+            style={{ position: "absolute", right: 12, padding: 4 }}
             activeOpacity={0.6}
           >
             <Ionicons
@@ -53,22 +61,12 @@ export const Input = ({
             />
           </TouchableOpacity>
         )}
-      </View>
-      {error && <Text style={styles.error}>{error}</Text>}
-    </View>
+      </XStack>
+      {error && (
+        <Text fontSize={12} color="$danger">
+          {error}
+        </Text>
+      )}
+    </YStack>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper:       { gap:6 },
-  label:         { fontSize:14, fontWeight:"500", color:"#334155" },
-  inputWrapper:  { position:"relative", justifyContent:"center" },
-  input:         { borderWidth:1.5, borderColor:"#CBD5E1", borderRadius:10,
-                   paddingHorizontal:16, paddingVertical:13, fontSize:15,
-                   color:"#0F172A", backgroundColor:"#F8FAFC" },
-  inputWithIcon: { paddingRight:44 },
-  inputError:    { borderColor:"#DC2626" },
-  eyeButton:     { position:"absolute", right:12, padding:4 },
-  error:         { fontSize:12, color:"#DC2626" },
-});
- 

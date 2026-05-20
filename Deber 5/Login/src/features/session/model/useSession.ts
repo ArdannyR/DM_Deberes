@@ -30,9 +30,17 @@ export const useSession = () => {
   // Esto garantiza que la UI se actualice INMEDIATAMENTE sin esperar
   // al siguiente ciclo de refetch.
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        console.log("Evento detectado:", event); // Esto te dirá qué está pasando
+        
+        // Actualizamos la caché con la nueva sesión (sea inicial o nueva)
         queryClient.setQueryData(SESSION_QUERY_KEY, newSession);
+        
+        // Si el evento es SIGNED_IN, forzamos la actualización de la UI
+        if (event === 'SIGNED_IN') {
+          console.log("¡Usuario autenticado con éxito!");
+        }
       }
     );
     return () => subscription.unsubscribe();
